@@ -1,0 +1,37 @@
+# Gradle and Kotlin build outputs
+.gradle/
+.kotlin/
+build/
+out/
+
+# Keep the Gradle wrapper: a fresh clone and CI need it to build
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE (local to each machine)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+
+# Local configuration and secrets
+local.properties
+.env
+.env.*
+!.env.example
+*.local.conf
+*.local.yaml
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+
+# Claude Code local settings (shared settings and skills stay tracked)
+.claude/settings.local.json
+
+# Logs
+*.log
+logs/
