@@ -20,19 +20,44 @@ The backend for [GoAgain](https://github.com/VoroFP/GoAgain), my Android learnin
 - **Gradle Kotlin DSL** and version catalogs
 - **Docker** and **GitHub Actions** for CI *(planned)*
 
-## Architecture (planned)
+## Architecture
+
+> Decided in KAN-22. The code moves into this structure starting with the health endpoint (KAN-23).
+
+A single Gradle module, organized by feature, with Clean Architecture layers inside each feature.
 
 ```
-routes   Ktor routing, request/response DTOs, validation, HTTP status mapping
-domain   pure Kotlin: use cases, domain models and repository interfaces
-data     repository implementations, database access and mappers
+es.fervor.goagain
+├── app/                composition root: Application modules, plugin installation, wiring
+│   └── error/          StatusPages configuration and the JSON error response
+├── core/               shared kernel: only what several features need and no single feature owns
+│   └── domain/
+│       └── error/      domain error types (pure Kotlin)
+└── <feature>/          one package per feature
+    ├── routes/         Ktor routing, request/response DTOs, input validation, DTO ↔ model mappers
+    ├── domain/         domain models, use cases (one per action), repository interfaces
+    └── data/           repository implementations, data sources, entities, entity ↔ model mappers
 ```
 
-Dependency rules:
+### Dependency rules
 
-- `domain` depends on nothing else: no Ktor, database or serialization types.
-- `routes` and `data` depend on `domain`, never on each other.
-- DTOs stay in `routes` and database entities stay in `data`. Mappers translate between them and domain models.
+- **Between packages:** `app → <feature> → core`. Nothing depends on `app`, and `core` never imports from a feature.
+- **Inside a feature:** `routes → domain ← data`. `domain` is pure Kotlin: no Ktor, database or serialization types. It may only depend on `core.domain`.
+- **Types per layer:** DTOs stay in `routes`, entities stay in `data`, and models live in `domain`. Each boundary has a mapper, and the outer layer owns it, because `domain` can't know about DTOs or entities.
+- **Errors:** use cases throw the domain errors from `core.domain.error`. Only `StatusPages` in `app` maps them to HTTP status codes and the JSON error body. Features never build error responses themselves.
+- **Features** don't import each other's `routes` or `data`. How one feature reads another's data will be decided when the first case comes up.
+
+### Why a single module
+
+Splitting into Gradle modules now would add build setup and gain nothing for a one-person project with fast builds. The feature packages and dependency rules keep each feature ready to extract later. For now the rules are enforced by convention and code review. The project will split into modules when build times start to hurt, or when the rules keep getting broken.
+
+### Compared to the GoAgain Android app
+
+- **Same ideas:** packages by feature, Clean Architecture layers, a use case for each action, a `core` for shared code and `app` as the composition root.
+- **`routes` replaces the UI and ViewModel layer.** It parses a request, calls a use case and responds. It keeps no state between calls.
+- **No lifecycle and shared concurrency.** Use cases and repositories are stateless. Many requests from different users run through them at the same time, so any mutable state outside a request is shared.
+- **Features are built around resources and business rules, not screens.** Names match the Android features where the domain concept is the same. Some features exist on only one side, such as onboarding (Android only) or auth (backend).
+- **Packages, not modules.** Android uses Gradle modules to enforce boundaries. Here the boundaries are packages, until a module split pays off.
 
 ## Getting started
 
