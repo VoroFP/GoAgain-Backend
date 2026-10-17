@@ -15,10 +15,10 @@ The point here is **learning and understanding**, not finishing fast. A solution
 - **Framework**: Ktor server, using its plugins (`ContentNegotiation`, `StatusPages`, `CallLogging`, `Authentication`, etc.) instead of hand-rolled equivalents.
 - **Serialization**: kotlinx.serialization (JSON)
 - **API style**: REST over JSON, versioned under `/api/v1`. The API is the contract with the Android app, so breaking changes need a new version or a migration plan.
-- **Architecture**: Clean Architecture with `routes` (presentation), `domain` and `data` layers.
-  - `domain`: pure Kotlin (no Ktor, database or serialization dependencies). Holds use cases/services, domain models and repository interfaces.
+- **Architecture**: packages by feature, with Clean Architecture `routes` (presentation), `domain` and `data` layers inside each feature, plus `app` (composition root) and `core` (shared kernel). The package tree and dependency rules are in the README's **Architecture** section, which is the source of truth; follow it when placing new code.
+  - `domain`: pure Kotlin (no Ktor, database or serialization dependencies). Holds use cases (one per action), domain models and repository interfaces.
   - `data`: repository implementations, database access and external API clients, plus mappers.
-  - `routes`: Ktor routing, request/response DTOs, input validation and mapping to HTTP status codes. Routes stay thin: they parse, delegate to the domain and respond.
+  - `routes`: Ktor routing, request/response DTOs and input validation. Routes stay thin: they parse, delegate to the domain and respond. Error-to-status-code mapping lives in `app` (`StatusPages`), not in routes.
 - **Modularization**: start as a single Gradle module with clear packages per layer and per feature; split into modules only when there is a real reason.
 - **Async**: Kotlin Coroutines (no blocking calls on request threads; blocking I/O goes to `Dispatchers.IO`).
 - **Configuration**: `application.conf` (HOCON) or `application.yaml`, with secrets and environment-specific values injected via environment variables. No secrets in the repo.
