@@ -2,6 +2,12 @@
 
 What the project contains after KAN-21, why each piece is there, and what to learn before starting KAN-22.
 
+> **Snapshot.** This lesson describes the project as it was at the end of KAN-21. Later changes:
+> - **KAN-22** organized the code into `app`, `core` and feature packages ([lesson 2](02-project-structure.md)).
+> - **KAN-23** removed `Routing.kt`, `GET /` and `ServerTest`, and added `/health` with JSON serialization ([lesson 3](03-health-endpoint.md)).
+>
+> The concepts here still apply. For example, `configureHealth` in `Health.kt` compiles to `HealthKt`, just as `configureRouting` compiled to `RoutingKt`.
+
 **How to use this lesson:** read part 1 with the code open next to it. Try to answer the self-check questions without looking anything up. If you can't answer one, that's the topic to read about before moving on.
 
 ---
@@ -76,7 +82,7 @@ The engine is the actual HTTP server underneath Ktor: it accepts TCP connections
 - **`LICENSE`** is Apache 2.0, the same as the app.
 - **`README.md`** describes the project for visitors: what it is, its stack, the planned architecture and how to run it.
 - **`CLAUDE.md`** holds the rules for working with Claude Code in this repo (mentor mode).
-- **`.claude/skills/ticket/`** is the `/ticket KAN-XX` skill, which starts a Jira ticket.
+- **The `/ticket KAN-XX` skill** starts a Jira ticket. It lives in `~/.claude/skills/ticket/`, outside the repo, so it works in every repo that has a Jira section in its `CLAUDE.md`.
 - **The IntelliJ MCP server** is registered at *local* scope (in `~/.claude.json`), not in the repo, because it only exists on your machine.
 
 ---
