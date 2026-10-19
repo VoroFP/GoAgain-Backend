@@ -3,4 +3,5 @@ ktor:
     port: 8080
   application:
     modules:
-      - es.fervor.goagain.RoutingKt.configureRouting
+      - es.fervor.goagain.app.SerializationKt.configureSerialization
+      - es.fervor.goagain.app.health.HealthKt.configureHealth

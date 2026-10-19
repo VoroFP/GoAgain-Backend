@@ -106,6 +106,7 @@ I want to learn how to work better with AI agents. In this area **don't act as a
 - Site: https://ferrerperisvoro.atlassian.net (cloudId `d63c2d4b-9888-4f21-8a8a-e11139956cc8`)
 - Epic for this repo: **KAN-20** "GoAgain Backend". Tickets are named "Backend N: …".
 - Lessons for finished tickets go in `docs/lessons/`.
+- Lessons are snapshots of their ticket. When later work makes one outdated, add a short forward note at the top linking to the newer lesson instead of rewriting it. Only fix things that were wrong from the start.
 
 ## Git and GitHub
 

@@ -2,7 +2,7 @@
 
 The backend for [GoAgain](https://github.com/VoroFP/GoAgain), my Android learning lab. It's where I learn server-side Kotlin with Ktor by building the API the app consumes.
 
-> 🚧 **Work in progress.** The server currently responds with a Hello World. The stack and architecture below are the target, not the current state.
+> 🚧 **Work in progress.** The server currently only has a health check. The stack and architecture below are the target, not the current state.
 
 ## Goals
 
@@ -28,8 +28,9 @@ A single Gradle module, organized by feature, with Clean Architecture layers ins
 
 ```
 es.fervor.goagain
-├── app/                composition root: Application modules, plugin installation, wiring
-│   └── error/          StatusPages configuration and the JSON error response
+├── app/                composition root: Application modules, plugin installation, wiring, operational endpoints
+│   ├── error/          StatusPages configuration and the JSON error response
+│   └── health/         liveness endpoint (GET /health)
 ├── core/               shared kernel: only what several features need and no single feature owns
 │   └── domain/
 │       └── error/      domain error types (pure Kotlin)
@@ -45,6 +46,7 @@ es.fervor.goagain
 - **Inside a feature:** `routes → domain ← data`. `domain` is pure Kotlin: no Ktor, database or serialization types. It may only depend on `core.domain`.
 - **Types per layer:** DTOs stay in `routes`, entities stay in `data`, and models live in `domain`. Each boundary has a mapper, and the outer layer owns it, because `domain` can't know about DTOs or entities.
 - **Errors:** use cases throw the domain errors from `core.domain.error`. Only `StatusPages` in `app` maps them to HTTP status codes and the JSON error body. Features never build error responses themselves.
+- **Operational endpoints** such as `/health` live in `app`, outside `/api/v1`. They're for infrastructure (Docker, load balancers, deploy checks), not part of the Android app's API, and they have no domain or data layers. Liveness only reports that the process is up. Dependency checks such as the database belong to a separate readiness check.
 - **Features** don't import each other's `routes` or `data`. How one feature reads another's data will be decided when the first case comes up.
 
 ### Why a single module
