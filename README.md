@@ -10,6 +10,35 @@ The backend for [GoAgain](https://github.com/VoroFP/GoAgain), my Android learnin
 - **Serve the GoAgain app**: a versioned REST API that the Android app can rely on as a contract.
 - **Production-minded from the start**: tests, consistent error handling, configuration per environment, Docker and CI.
 
+## First feature: photo library *(planned)*
+
+A self-hosted replacement for Google Photos. The GoAgain app backs up the photos on my phone to a machine I own, and I can browse them from anywhere.
+
+**Why build it?** To learn. Open-source tools such as [Immich](https://immich.app) already do this, and a small Google One plan is cheap. Building my own covers file uploads, storage, background jobs, auth, deployment and backups, which is most of what a real backend needs.
+
+### MVP scope
+
+- **In:** photos only, a single user, automatic backup from the phone, a gallery grid with thumbnails, a full-screen viewer, delete, and importing my existing library from Google Takeout.
+- **Out, for now:** videos, PDFs, albums, sharing, search and multiple users.
+
+### How it runs
+
+```
+GoAgain app ──(private VPN, HTTPS)──▶ Ktor backend ──▶ database (metadata)
+                                                  └──▶ disk (photos and thumbnails)
+                                                  └──▶ off-site backup
+```
+
+- **Host:** my Windows PC for now, later a Raspberry Pi 4. The PC is allowed to sleep, so the app treats "server offline" as a normal state and syncs when it's back.
+- **Access from anywhere** through a mesh VPN (Tailscale). No ports open on the router, so the server is never on the public internet.
+- **Backups:** one machine is storage, not a backup. Photos and database follow a 3-2-1 backup (3 copies, 2 kinds of storage, 1 off-site), and the restore is tested before cancelling Google One.
+
+### Design constraints
+
+- **Uploads can stop halfway** (sleep, flaky mobile data), so they're idempotent: retrying the same photo never creates a duplicate.
+- **The server will move from Windows to a Linux ARM board**, so the storage location comes from configuration and the database never stores absolute, OS-specific paths.
+- **The Pi has 2 GB of RAM**, so files are streamed to disk instead of being loaded into memory, and thumbnails are generated in the background, outside the upload request.
+
 ## Tech stack
 
 - **Kotlin** on the JVM (Java 21)
